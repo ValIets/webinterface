@@ -1,0 +1,11 @@
+body {
+    overflow-y: scroll;
+}
+
+table tr {
+    text-align: left;
+}
+
+.no-margin {
+    margin: 0 !important;
+}
