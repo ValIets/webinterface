@@ -12,7 +12,7 @@
 
 ```sh
 # Clone the repository
-git clone REPO_ADDRESS_HERE
+git clone https://github.com/ValIets/webinterface.git
 
 # Go to directory
 cd valiets-webinterface
