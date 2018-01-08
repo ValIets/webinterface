@@ -1,4 +1,6 @@
 {
+    "/public/js/vendor.js": "/public/js/vendor.js",
     "/public/js/main.js": "/public/js/main.js",
-    "/public/css/main.css": "/public/css/main.css"
+    "/public/css/main.css": "/public/css/main.css",
+    "/public/js/manifest.js": "/public/js/manifest.js"
 }

@@ -1,11 +1,11 @@
+@import '~foundation-sites/dist/css/foundation.min.css';
+
+@import 'components/spacings';
+
 body {
     overflow-y: scroll;
 }
 
 table tr {
     text-align: left;
-}
-
-.no-margin {
-    margin: 0 !important;
 }

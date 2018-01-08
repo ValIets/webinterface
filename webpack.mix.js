@@ -5,6 +5,11 @@ mix.sass('src/scss/main.scss', 'public/css/');
 mix.copyDirectory('src/vendor', 'public/vendor/');
 mix.copyDirectory('src/views', 'public/');
 
+mix.extract([
+    'jquery',
+    'foundation-sites',
+]);
+
 // Full API
 // mix.js(src, output);
 // mix.react(src, output); <-- Identical to mix.js(), but registers React Babel compilation.
