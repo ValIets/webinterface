@@ -14,40 +14,7 @@ import config from './config';
         residents = data.residents;
 
         if (residents.length == 0) {
-            residents = [
-                {
-                    id: 1,
-                    name: "Bert Hendriks",
-                    address: "Adresje 17",
-                    section: "QPZ33.5",
-                    low_battery: true,
-                },
-                {
-                    id: 2,
-                    name: "Evert Klein",
-                    address: "Adresje 17",
-                    section: "JKP42.1",
-                },
-                {
-                    id: 3,
-                    name: "Celine Pepers",
-                    address: "Adresje 17",
-                    section: "DRJ21.2",
-                },
-                {
-                    id: 4,
-                    name: "Dirk de Haan",
-                    address: "Adresje 17",
-                    section: "QPZ33.5",
-                    is_fallen: true,
-                },
-                {
-                    id: 5,
-                    name: "Vanessa van Vliet",
-                    address: "Adresje 17",
-                    section: "LF94.5",
-                },
-            ];
+            console.log('No residents found.');
         }
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -91,13 +58,7 @@ import config from './config';
             })[0];
 
             if (!resident) {
-                resident = {
-                    id: 2,
-                    name: "Bert Hendriks",
-                    address: "Adresje 17",
-                    section: "QPZ33.5",
-                    low_battery: true,
-                };
+                console.log('Resident not found.');
             }
 
             let statusIcon = `<i class="far fa-circle fa-xs" style="color: limegreen;"></i>`;
@@ -111,9 +72,11 @@ import config from './config';
                 statusHtml = `${statusIcon} Mogelijk gevallen`;
             }
 
+            const residentName = `${resident.firstname} ${resident.surname}`;
+
             $('#resident-page__id').text(`#${resident.id}`);
-            $('#resident-page__title').html(`${statusIcon} ${resident.name} (#${resident.id})`);
-            $('#resident-page__name').text(resident.name);
+            $('#resident-page__title').html(`${statusIcon} ${residentName} (#${resident.id})`);
+            $('#resident-page__name').text(residentName);
             $('#resident-page__location').text(
                 `${resident.address}, sectie ${resident.section}`
             );
@@ -142,7 +105,7 @@ import config from './config';
                 $tr.append($('<td>').text(resident.id));
                 $tr.append(
                     $('<td>').html(
-                        `<a href="?resident_id=${resident.id}">${resident.name}</a>`
+                        `<a href="?resident_id=${resident.id}">${`${resident.firstname} ${resident.surname}`}</a>`
                     )
                 );
                 $tr.append($('<td>').text(resident.location));
