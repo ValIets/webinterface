@@ -3,6 +3,16 @@ import jQuery from 'jquery';
 import config from './config';
 
 (function($) {
+    const $statusPage = $('#status-page');
+    const $residentPage = $('#resident-page');
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.has('resident_id')) {
+        $statusPage.hide();
+        $residentPage.show();
+    }
+
     const socket = new WebSocket(
         `ws://${config.server.ip}:${config.server.port}`
     );
@@ -16,10 +26,6 @@ import config from './config';
         if (residents.length == 0) {
             console.log('No residents found.');
         }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const $statusPage = $('#status-page');
-        const $residentPage = $('#resident-page');
 
         if (urlParams.has('resident_id')) {
             const residentId = urlParams.get('resident_id');
@@ -48,9 +54,6 @@ import config from './config';
         }
 
         function handleResidentPage(residentId) {
-            $statusPage.hide();
-            $residentPage.show();
-
             let resident = $.map(residents, (resident) => {
                 if (resident.id == residentId) {
                     return resident;
@@ -74,10 +77,20 @@ import config from './config';
             }
 
             const residentName = `${resident.firstname} ${resident.surname}`;
+            const residentBirthdate = new Date(resident.birthday);
+            let residentBirthdateFormatted = residentBirthdate.toLocaleDateString('nl-NL', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            residentBirthdateFormatted = residentBirthdateFormatted[0].toUpperCase() + residentBirthdateFormatted.slice(1);
+            const residentAge = new Date().getYear() - residentBirthdate.getYear();
 
-            $('#resident-page__id').text(`#${resident.id}`);
-            $('#resident-page__title').html(`${statusIcon} ${residentName} (#${resident.id})`);
-            $('#resident-page__name').text(residentName);
+            $('#resident-page__title').html(`Bewoner <span style="color: #666;">${residentName}</span> (#${resident.id})`);
+            $('#resident-page__firstname').text(resident.firstname);
+            $('#resident-page__surname').text(resident.surname);
+            $('#resident-page__birthdate').html(`${residentBirthdateFormatted}<br />(${residentAge} jaar oud)`);
             $('#resident-page__location').text(
                 `${resident.address}, sectie ${resident.section}`
             );
@@ -87,11 +100,11 @@ import config from './config';
                 // If caretaker of resident is coming
                 if (resident.is_coming) {
                     $('#resident-page__on-the-way').html(
-                        `<p>Ja.</p><a href="?resident_id=${resident.id}&is_caretaker_coming=false" class="button small no-margin"><i class="fa fa-thumbs-up"></i> Is geholpen</a>`
+                        `<p>Verzorger is onderweg.</p><a href="?resident_id=${resident.id}&is_caretaker_coming=false" class="button small no-margin"><i class="fa fa-thumbs-up"></i> Is geholpen</a>`
                     );
                 } else {
                     $('#resident-page__on-the-way').html(
-                        `<p>Nee.</p><a href="?resident_id=${resident.id}&is_caretaker_coming=true" class="button small no-margin"><i class="fa fa-user-md"></i> Verzorger onderweg?</a>`
+                        `<p>Verzorger is niet onderweg.</p><a href="?resident_id=${resident.id}&is_caretaker_coming=true" class="button small no-margin"><i class="fa fa-user-md"></i> Verzorger onderweg?</a>`
                     );
                 }
             }
