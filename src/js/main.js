@@ -61,15 +61,16 @@ import config from './config';
                 console.log('Resident not found.');
             }
 
-            let statusIcon = `<i class="far fa-circle fa-xs" style="color: limegreen;"></i>`;
-            let statusHtml = `${statusIcon} In orde`;
+            let statusIcon = `<i class="far fa-circle fa-xs" style="color: darkgreen;"></i>`;
+            let statusText = '<span style="color: darkgreen;">In orde</span>';
 
             if (resident.low_battery) {
                 statusIcon = `<i class="fa fa-circle fa-xs" style="color: orange;"></i>`;
-                statusHtml = `${statusIcon} Batterij laag`;
+                statusText = '<span style="color: orange;">Batterij laag</span>';
             } else if (resident.is_fallen) {
                 statusIcon = `<i class="fa fa-circle fa-xs" style="color: red;"></i>`;
-                statusHtml = `${statusIcon} Mogelijk gevallen`;
+                statusText = '<span style="color: red;">Mogelijk gevallen</span>';
+                statusText += (resident.is_coming) ? ' <span style="color: red;">en verzorger onderweg</span>' : '';
             }
 
             const residentName = `${resident.firstname} ${resident.surname}`;
@@ -80,17 +81,17 @@ import config from './config';
             $('#resident-page__location').text(
                 `${resident.address}, sectie ${resident.section}`
             );
-            $('#resident-page__status').html(statusHtml);
+            $('#resident-page__status').html(`${statusIcon} ${statusText}`);
 
             if (resident.is_fallen) {
                 // If caretaker of resident is coming
                 if (resident.is_coming) {
                     $('#resident-page__on-the-way').html(
-                        `<p>Onderweg.</p><a href="?resident_id=${resident.id}&is_caretaker_coming=false" class="button small">Zet op "niet onderweg"</a>`
+                        `<p>Ja.</p><a href="?resident_id=${resident.id}&is_caretaker_coming=false" class="button small no-margin"><i class="fa fa-thumbs-up"></i> Is geholpen</a>`
                     );
                 } else {
                     $('#resident-page__on-the-way').html(
-                        `<p>Niet onderweg.</p><a href="?resident_id=${resident.id}&is_caretaker_coming=true" class="button small">Zet op "onderweg"</a>`
+                        `<p>Nee.</p><a href="?resident_id=${resident.id}&is_caretaker_coming=true" class="button small no-margin"><i class="fa fa-user-md"></i> Verzorger onderweg?</a>`
                     );
                 }
             }
@@ -110,16 +111,39 @@ import config from './config';
                 );
                 $tr.append($('<td>').text(resident.location));
 
-                let statusHtml = `<i class="far fa-circle fa-xs" style="color: limegreen;"></i> In orde`;
+                let statusIcon = `<i class="far fa-circle fa-xs" style="color: darkgreen;"></i>`;
+                let statusText = '<span style="color: darkgreen;">In orde</span>';
 
                 if (resident.low_battery) {
-                    statusHtml = `<i class="fa fa-circle fa-xs" style="color: orange;"></i> Batterij laag`;
+                    statusIcon = `<i class="fa fa-circle fa-xs" style="color: orange;"></i>`;
+                    statusText = '<span style="color: orange;">Batterij laag</span>';
                 } else if (resident.is_fallen) {
-                    statusHtml = `<i class="fa fa-circle fa-xs" style="color: red;"></i> Mogelijk gevallen`;
+                    statusIcon = `<i class="fa fa-circle fa-xs" style="color: red;"></i>`;
+                    statusText = '<span style="color: red;">Mogelijk gevallen</span>';
+                    statusText += (resident.is_coming) ? '<br /><span style="color: red;">en verzorger onderweg</span>' : '';
                 }
 
-                $tr.append($('<td>').html(statusHtml));
-                $tr.append($('<td>'));
+                $tr.append($('<td>').html(statusIcon));
+                $tr.append($('<td>').html(statusText));
+
+                if (!resident.is_fallen) {
+                    $tr.append($('<td>'));
+                } else {
+                    // If caretaker of resident is coming
+                    if (resident.is_coming) {
+                        $tr.append(
+                            $('<td>').html(
+                                `<a href="?resident_id=${resident.id}&is_caretaker_coming=false" class="button small no-margin"><i class="fa fa-thumbs-up"></i> Is geholpen</a>`
+                            )
+                        );
+                    } else {
+                        $tr.append(
+                            $('<td>').html(
+                                `<a href="?resident_id=${resident.id}&is_caretaker_coming=true" class="button small no-margin"><i class="fa fa-user-md"></i> Verzorger onderweg?</a>`
+                            )
+                        );
+                    }
+                }
 
                 $tr.appendTo($residentsTableRows);
             });

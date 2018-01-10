@@ -13,7 +13,7 @@
         <div id="app">
             <div class="grid-container">
                 <div class="grid-x grid-padding-x grid-padding-y">
-                    <div id="status-page" class="large-8 cell">
+                    <div id="status-page" class="large-9 cell">
                         <h2>Valdetectie Status</h2>
 
                         <table>
@@ -22,7 +22,7 @@
                                     <th>ID</th>
                                     <th>Bewoner</th>
                                     <th>Locatie</th>
-                                    <th>Status</th>
+                                    <th colspan="2">Status</th>
                                     <th>Snelactie</th>
                                 </tr>
                             </thead>
@@ -38,6 +38,7 @@
 
                     <div id="resident-page" class="cell" style="display: none;">
                         <h2 id="resident-page__title">Bewoner gegevens ophalen...</h2>
+                        <p id="resident-page__status"></p>
 
                         <div class="grid-x grid-padding-x grid-padding-y">
                             <div class="large-4 cell">
@@ -51,10 +52,6 @@
                             <div class="large-4 cell">
                                 <h4>Locatie</h4>
                                 <div id="resident-page__location"></div>
-                            </div>
-                            <div class="large-4 cell">
-                                <h4>Status</h4>
-                                <div id="resident-page__status"></div>
                             </div>
                             <div class="large-4 cell">
                                 <h4>Verzorger onderweg</h4>
