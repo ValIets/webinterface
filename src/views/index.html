@@ -1,6 +1,8 @@
 <html>
     <head>
         <title>Dashboard - Valiets Web Interface</title>
+        <meta charset="utf-8" />
+
         <script src="//unpkg.com/jquery@3/dist/jquery.min.js"></script>
 
         <link rel="stylesheet" href="//unpkg.com/foundation-sites@6.4/dist/css/foundation.min.css" />
@@ -26,58 +28,93 @@
                     if (data.residents) {
                         $('#residents__loading').hide();
 
+                        const STATUS_ICON_OK = `<i class="far fa-circle fa-xs" style="color: darkgreen;"></i>`;
+                        const STATUS_TEXT_OK = '<span style="color: darkgreen;">In orde</span>';
+
+                        const STATUS_ICON_IS_FALLEN = `<i class="fa fa-circle fa-xs" style="color: red;"></i>`;
+                        const STATUS_TEXT_IS_FALLEN = `<span style="color: red;">Mogelijk gevallen</span>`;
+                        const BUTTON_CARETAKER_COMING = `<button class="residents__action-button button small no-margin" data-button="CARETAKER_COMING">` +
+                            `<i class="fa fa-user-md"></i> Zet status op 'verzorger onderweg'` +
+                        `</button>`;
+
+                        const STATUS_TEXT_IS_FALLEN_AND_CARETAKER_COMING = STATUS_TEXT_IS_FALLEN + '<br /><span style="color: red;">en verzorger onderweg</span>';
+                        const BUTTON_RESIDENT_OK = `<button class="residents__action-button button small no-margin" data-button="IS_OK">` +
+                        `<i class="fa fa-thumbs-up"></i> Zet status op 'in orde'` +
+                        `</button>`;
+
+                        const STATUS_ICON_LOW_BATTERY = `<i class="fa fa-circle fa-xs" style="color: orange;"></i>`;
+                        const STATUS_TEXT_LOW_BATTERY = '<span style="color: orange;">Batterij laag</span>';
+
                         $.each(data.residents, function(i, resident) {
-                            let statusIcon = `<i class="far fa-circle fa-xs" style="color: darkgreen;"></i>`;
-                            let statusText = '<span style="color: darkgreen;">In orde</span>';
+                            let statusIcon = STATUS_ICON_OK;
+                            let statusText = STATUS_TEXT_OK;
                             let action = '';
 
-                            if (resident.low_battery) {
-                                statusIcon = `<i class="fa fa-circle fa-xs" style="color: orange;"></i>`;
-                                statusText = '<span style="color: orange;">Batterij laag</span>';
-                            } else if (resident.is_fallen) {
-                                statusIcon = `<i class="fa fa-circle fa-xs" style="color: red;"></i>`;
-                                statusText = '<span style="color: red;">Mogelijk gevallen</span>';
-                                action = `<button class="button small no-margin" id="${resident.id}">` +
-                                        `<i class="fa fa-user-md"></i> Verzorger is onderweg` +
-                                    `</button>`
-                                ;
+                            if (resident.is_fallen) {
+                                statusIcon = STATUS_ICON_IS_FALLEN;
+                                statusText = STATUS_TEXT_IS_FALLEN;
+                                action = BUTTON_CARETAKER_COMING;
 
                                 if (resident.is_coming) {
-                                    statusText += '<br /><span style="color: red;">en verzorger onderweg</span>';
-                                    action = `<button class="button small no-margin" id="${resident.id}">` +
-                                            `<i class="fa fa-thumbs-up"></i> Bewoner is geholpen` +
-                                        `</button>`
-                                    ;
+                                    statusText = STATUS_TEXT_IS_FALLEN_AND_CARETAKER_COMING;
+                                    action = BUTTON_RESIDENT_OK;
                                 }
+                            } else if (resident.low_battery) {
+                                statusIcon = STATUS_ICON_LOW_BATTERY;
+                                statusText = STATUS_TEXT_LOW_BATTERY;
                             }
 
-                            $('#residents__rows').append(
-                                `<tr id="${resident.id}">` +
-                                    `<td>` +
-                                    // `<a href="?resident_id=${resident.id}">` +
-                                        `${resident.firstname} ${resident.surname}` +
-                                    // `</a>` +
-                                    `</td>` +
-                                    `<td>${resident.section} ${resident.address}</td>` +
-                                    `<td>${statusIcon}</td>` +
-                                    `<td>${statusText}</td>` +
-                                    `<td>${action}</td>` +
-                                `</tr>`
+                            const $residentRow = $(`<tr class="resident__row" data-resident-id="${resident.id}">`);
+
+                            $residentRow.append(
+                                `<td>` +
+                                // `<a href="?resident_id=${resident.id}">` +
+                                    `${resident.firstname} ${resident.surname}` +
+                                // `</a>` +
+                                `</td>` +
+                                `<td>${resident.section} ${resident.address}</td>` +
+                                `<td class="resident__status-icon">${statusIcon}</td>` +
+                                `<td class="resident__status-text">${statusText}</td>` +
+                                `<td class="resident__action-container">${action}</td>`
                             );
 
-                            $('#residents__table').on('click', `input#${resident.id}`, function() {
-                                if ($(this).val() === 'Hulp onderweg') {
-                                    $(`tr#${resident.id} > td:nth-child(3)`).text('Onderweg');
-                                    $(`tr#${resident.id} > td:nth-child(4) > input`).attr('value', 'Afgehandeld');
+                            $residentRow.on('click', '.residents__action-button', function() {
+                                const $residentRow = $(this).parent().parent();
+                                const residentId = $residentRow.data('resident-id');
+                                const button = $(this).data('button');
 
-                                    webApp.send("{ \"is_coming\": true, \"id\": " + $(this).attr("id") + " }");
-                                } else if ($(this).val() === 'Afgehandeld') {
-                                    $(`tr#${resident.id} > td:nth-child(3)`).text('Ok');
-                                    $(`tr#${resident.id} > td:nth-child(4) > input`).attr('value', '');
+                                console.log(residentId);
 
-                                    webApp.send("{ \"is_coming\": false, \"id\": " + $(this).attr("id") + " }");
+                                if (button === 'IS_OK') {
+                                    $residentRow.find('.resident__status-icon').html(STATUS_ICON_OK);
+                                    $residentRow.find('.resident__status-text').html(STATUS_TEXT_OK);
+                                    $residentRow.find('.resident__action-container').html('');
+
+                                    // webApp.send(`{ "is_coming": false, "id": ${residentId}}`);
+                                    // webApp.send(
+                                    //     JSON.stringify({
+                                    //         is_coming: 'false',
+                                    //         id: residentId,
+                                    //     })
+                                    // );
+                                    webApp.send("{ \"is_coming\": false, \"id\": " + residentId + " }");
+                                } else if (button === 'CARETAKER_COMING') {
+                                    $residentRow.find('.resident__status-icon').html(STATUS_ICON_IS_FALLEN);
+                                    $residentRow.find('.resident__status-text').html(STATUS_TEXT_IS_FALLEN_AND_CARETAKER_COMING);
+                                    $residentRow.find('.resident__action-container').html(BUTTON_RESIDENT_OK);
+
+                                    // webApp.send(`{ "is_coming": true, "id": ${residentId}}`);
+                                    // webApp.send(
+                                    //     JSON.stringify({
+                                    //         is_coming: true,
+                                    //         id: residentId,
+                                    //     })
+                                    // );
+                                    webApp.send("{ \"is_coming\": true, \"id\": " + residentId + " }");
                                 }
                             });
+
+                            $('#residents__rows').append($residentRow);
                         });
                     }
                 };
