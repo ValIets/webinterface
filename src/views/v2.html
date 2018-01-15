@@ -1,0 +1,118 @@
+<html>
+    <head>
+        <title>Dashboard - Valiets Web Interface</title>
+        <script src="//unpkg.com/jquery@3/dist/jquery.min.js"></script>
+
+        <link rel="stylesheet" href="//unpkg.com/foundation-sites@6.4/dist/css/foundation.min.css" />
+        <link rel="stylesheet" href="//unpkg.com/font-awesome@4.7/css/font-awesome.min.css" />
+        <style>
+            * { box-sizing: border-box; }
+            td { padding: 0 8px; }
+        </style>
+    </head>
+    <body style="margin: 0; width: 100%; height: 100%;">
+        <script>
+            const config = {
+                server: {
+                    ip: "145.132.98.80",
+                    port: 51030
+                }
+            };
+
+            (function($) {
+                const webApp = new WebSocket(`ws://${config.server.ip}:${config.server.port}`);
+
+                webApp.onmessage = function(event) {
+                    data = $.parseJSON(event.data);
+
+                    console.log(data)
+
+                    if (data.residents) {
+                        console.log(data.residents);
+
+                        $.each(data.residents, function(i, resident) {
+                            status = '';
+                            action = '';
+
+                            if (resident.is_fallen) {
+                                if (resident.is_coming) {
+                                    status = 'Onderweg';
+                                    action = `<input type="button" value="Afgehandeld" id="${resident.id}"></input>`;
+                                } else {
+                                    status = 'Gevallen';
+                                    action = `<input type="button" value="Hulp onderweg" id="${resident.id}"></input>`;
+                                }
+                            } else {
+                                status = 'Ok';
+                                action = `<input type="button" id="${resident.id}"></input>`;
+                            }
+
+                            $('#residents__rows').append(
+                                `<tr id="${resident.id}">` +
+                                    `<td>${resident.firstname} ${resident.surname}</td>` +
+                                    `<td>${resident.section} ${resident.address}</td>` +
+                                    `<td>${status}</td>` +
+                                    `<td>${action}</td>` +
+                                `</tr>`
+                            );
+
+                            $('#residents__table').on('click', 'input#' + resident.id, function() {
+                                if ($(this).val() === 'Hulp onderweg') {
+                                    $(`tr#${resident.id} > td:nth-child(3)`).text('Onderweg');
+                                    $(`tr#${resident.id} > td:nth-child(4) > input`).attr('value', 'Afgehandeld');
+
+                                    webApp.send("{ \"is_coming\": true, \"id\": " + $(this).attr("id") + " }");
+                                } else if ($(this).val() === 'Afgehandeld') {
+                                    $(`tr#${resident.id} > td:nth-child(3)`).text('Ok');
+                                    $(`tr#${resident.id} > td:nth-child(4) > input`).attr('value', '');
+
+                                    webApp.send("{ \"is_coming\": false, \"id\": " + $(this).attr("id") + " }");
+                                }
+                            });
+                        });
+                    } else if (data.is_fallen) {
+                        $(`tr#${data.id} > td:nth-child(3)`).text('Gevallen');
+                        $(`tr#${data.id} > td:nth-child(4) > input`).attr('value', 'Verzorger onderweg?');
+                    }
+                };
+            })(jQuery);
+        </script>
+
+        <div class="grid-container">
+            <div class="grid-x grid-padding-x grid-padding-y">
+                <div class="large-9 cell">
+                    <h2 style="margin: 0; padding: 5px;">
+                        Valdetectie Bewoners
+                    </h2>
+
+                    <table id="residents__table">
+                        <thead>
+                            <tr>
+                                <th>Naam</th>
+                                <th>Adres</th>
+                                <th>Status</th>
+                                <th>Actie</th>
+                            </tr>
+                        </thead>
+                        <tbody id="residents__rows" style="background: #fbfbfb;">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 60px 0;">
+                                    <div>
+                                        <!-- <i class="fa fa-4x fa-wheelchair fa-spin" style="color: #444;"></i> -->
+                                        <i class="fa fa-3x fa-circle-o-notch fa-spin" style="color: #666;"></i>
+                                        <!-- <i class="fa fa-3x fa-spinner fa-pulse" style="color: #666;"></i> -->
+                                    </div>
+                                    <div style="margin-top: 20px;">
+                                        <em>Bewoners aan het laden...</em>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script src="//unpkg.com/foundation-sites@6.4/dist/js/foundation.min.js"></script>
+    </body>
+</html>
