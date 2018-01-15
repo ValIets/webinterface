@@ -4,12 +4,9 @@
         <script src="//unpkg.com/jquery@3/dist/jquery.min.js"></script>
 
         <link rel="stylesheet" href="//unpkg.com/foundation-sites@6.4/dist/css/foundation.min.css" />
+        <link rel="stylesheet" href="/css/main.css" />
         <!-- <link rel="stylesheet" href="//unpkg.com/font-awesome@4.7/css/font-awesome.min.css" /> -->
         <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
-        <style>
-            * { box-sizing: border-box; }
-            td { padding: 0 8px; }
-        </style>
     </head>
     <body style="margin: 0; width: 100%; height: 100%;">
         <script>
@@ -38,14 +35,20 @@
                             if (resident.is_fallen) {
                                 if (resident.is_coming) {
                                     status = 'Onderweg';
-                                    action = `<input type="button" value="Afgehandeld" id="${resident.id}"></input>`;
+                                    action = `<button class="button small no-margin" id="${resident.id}">` +
+                                            `<i class="fa fa-thumbs-up"></i> Is geholpen` +
+                                        `</button>`
+                                    ;
                                 } else {
                                     status = 'Gevallen';
-                                    action = `<input type="button" value="Hulp onderweg" id="${resident.id}"></input>`;
+                                    action = `<button class="button small no-margin" id="${resident.id}">` +
+                                            `<i class="fa fa-user-md"></i> Verzorger onderweg?` +
+                                        `</button>`
+                                    ;
                                 }
                             } else {
-                                status = 'Ok';
-                                action = `<input type="button" id="${resident.id}"></input>`;
+                                status = 'In orde';
+                                action = '';
                             }
 
                             $('#residents__rows').append(
