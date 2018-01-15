@@ -17,15 +17,8 @@ import config from './config';
         `ws://${config.server.ip}:${config.server.port}`
     );
 
-    let residents = [];
-
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        residents = data.residents;
-
-        if (residents.length == 0) {
-            console.log('No residents found.');
-        }
 
         if (urlParams.has('resident_id')) {
             const residentId = urlParams.get('resident_id');
@@ -54,7 +47,7 @@ import config from './config';
         }
 
         function handleResidentPage(residentId) {
-            let resident = $.map(residents, (resident) => {
+            let resident = $.map(data.residents, (resident) => {
                 if (resident.id == residentId) {
                     return resident;
                 }
@@ -112,54 +105,76 @@ import config from './config';
 
         function handleStatusPage() {
             const $residentsTableRows = $('#residents-table-rows');
-            $residentsTableRows.empty();
 
-            $.each(residents, function(i, resident) {
-                const $tr = $('<tr>');
-                $tr.append($('<td>').text(resident.id));
-                $tr.append(
-                    $('<td>').html(
-                        `<a href="?resident_id=${resident.id}">${`${resident.firstname} ${resident.surname}`}</a>`
-                    )
-                );
-                $tr.append($('<td>').text(resident.location));
+            if (data.hasOwnProperty('residents')) {
+                $residentsTableRows.empty();
+
+                $.each(data.residents, function(i, resident) {
+                    const $tr = $(`<tr data-resident-id="${resident.id}">`);
+                    $tr.append($('<td class="resident__id">').text(resident.id));
+                    $tr.append(
+                        $('<td class="resident__name">').html(
+                            `<a href="?resident_id=${resident.id}">${`${resident.firstname} ${resident.surname}`}</a>`
+                        )
+                    );
+                    $tr.append($('<td class="resident__location">').text(resident.location));
+
+                    let statusIcon = `<i class="far fa-circle fa-xs" style="color: darkgreen;"></i>`;
+                    let statusText = '<span style="color: darkgreen;">In orde</span>';
+
+                    if (resident.low_battery) {
+                        statusIcon = `<i class="fa fa-circle fa-xs" style="color: orange;"></i>`;
+                        statusText = '<span style="color: orange;">Batterij laag</span>';
+                    } else if (resident.is_fallen) {
+                        statusIcon = `<i class="fa fa-circle fa-xs" style="color: red;"></i>`;
+                        statusText = '<span style="color: red;">Mogelijk gevallen</span>';
+                        statusText += (resident.is_coming) ? '<br /><span style="color: red;">en verzorger onderweg</span>' : '';
+                    }
+
+                    $tr.append($('<td class="resident__status-icon">').html(statusIcon));
+                    $tr.append($('<td class="resident__status-text">').html(statusText));
+
+                    const $quickActions = $('<td class="resident__quick-actions">');
+
+                    if (resident.is_fallen) {
+                        // If caretaker of resident is coming
+                        if (resident.is_coming) {
+                            $quickActions.html(
+                                `<a href="?resident_id=${resident.id}&is_caretaker_coming=false" class="button small no-margin"><i class="fa fa-thumbs-up"></i> Is geholpen</a>`
+                            );
+                        } else {
+                            $quickActions.html(
+                                `<a href="?resident_id=${resident.id}&is_caretaker_coming=true" class="button small no-margin"><i class="fa fa-user-md"></i> Verzorger onderweg?</a>`
+                            );
+                        }
+                    }
+
+                    $tr.append($quickActions);
+                    $tr.appendTo($residentsTableRows);
+                });
+            } else if (data.hasOwnProperty('is_fallen')) {
+                const $residentTableRow = $residentsTableRows.find(`[data-resident-id="${data.id}"]`);
 
                 let statusIcon = `<i class="far fa-circle fa-xs" style="color: darkgreen;"></i>`;
                 let statusText = '<span style="color: darkgreen;">In orde</span>';
+                const $quickActions = $residentTableRow.find('.resident__quick-actions');
 
-                if (resident.low_battery) {
-                    statusIcon = `<i class="fa fa-circle fa-xs" style="color: orange;"></i>`;
-                    statusText = '<span style="color: orange;">Batterij laag</span>';
-                } else if (resident.is_fallen) {
+                // if (resident.low_battery) {
+                //     statusIcon = `<i class="fa fa-circle fa-xs" style="color: orange;"></i>`;
+                //     statusText = '<span style="color: orange;">Batterij laag</span>';
+                // } else
+                if (data.is_fallen) {
                     statusIcon = `<i class="fa fa-circle fa-xs" style="color: red;"></i>`;
                     statusText = '<span style="color: red;">Mogelijk gevallen</span>';
-                    statusText += (resident.is_coming) ? '<br /><span style="color: red;">en verzorger onderweg</span>' : '';
+                    // statusText += (resident.is_coming) ? '<br /><span style="color: red;">en verzorger onderweg</span>' : '';
+                    $quickActions.html(
+                        `<a href="?resident_id=${data.id}&is_caretaker_coming=true" class="button small no-margin"><i class="fa fa-user-md"></i> Verzorger onderweg?</a>`
+                    );
                 }
 
-                $tr.append($('<td>').html(statusIcon));
-                $tr.append($('<td>').html(statusText));
-
-                if (!resident.is_fallen) {
-                    $tr.append($('<td>'));
-                } else {
-                    // If caretaker of resident is coming
-                    if (resident.is_coming) {
-                        $tr.append(
-                            $('<td>').html(
-                                `<a href="?resident_id=${resident.id}&is_caretaker_coming=false" class="button small no-margin"><i class="fa fa-thumbs-up"></i> Is geholpen</a>`
-                            )
-                        );
-                    } else {
-                        $tr.append(
-                            $('<td>').html(
-                                `<a href="?resident_id=${resident.id}&is_caretaker_coming=true" class="button small no-margin"><i class="fa fa-user-md"></i> Verzorger onderweg?</a>`
-                            )
-                        );
-                    }
-                }
-
-                $tr.appendTo($residentsTableRows);
-            });
-    };
+                $residentTableRow.find('.resident__status-icon').html(statusIcon);
+                $residentTableRow.find('.resident__status-text').html(statusText);
+            }
+        };
     };
 })(jQuery);
