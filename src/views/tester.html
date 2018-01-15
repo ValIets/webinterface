@@ -1,0 +1,60 @@
+<html>
+    <head>
+        <title>Tester - Valiets Web Interface</title>
+        <script src="//unpkg.com/jquery@3/dist/jquery.min.js"></script>
+        <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="//unpkg.com/foundation-sites@6.4/dist/css/foundation.min.css" />
+        <link rel="stylesheet" href="/css/main.css" />
+        <!-- <link rel="stylesheet" href="//unpkg.com/font-awesome@4.7/css/font-awesome.min.css" /> -->
+        <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
+    </head>
+    <body>
+        <script>
+        const config = {
+            server: {
+                ip: "145.132.98.80",
+                port: 51030
+            }
+        };
+
+        (function($) {
+            const wearable = new WebSocket(`ws://${config.server.ip}:${config.server.port}`);
+
+            $('input#send').on('click', function() {
+                wearable.send(
+                    JSON.stringify({
+                        mac_address: $('input#mac').val(),
+                        is_fallen: $('input#fall').is(':checked'),
+                        low_battery: $('input#battery').is(':checked')
+                    })
+                );
+            });
+        })(jQuery);
+        </script>
+
+        <div class="grid-container">
+            <div class="grid-x grid-padding-x grid-padding-y">
+                <div class="large-9 cell">
+                    <h2>Wearable tester</h2>
+                    <div class="grid-x">
+                        <div class="auto cell">
+                            <input type="text"
+                                id="mac"
+                                value="12:34:56:78:90:AB"
+                            />
+                        </div>
+                        <div class="medium-4 cell">
+                            <button class="button expanded" id="send">Verzend</button>
+                        </div>
+                    </div>
+                    <input type="checkbox" id="fall"/>
+                    <label for="fall">Gevallen?</label>
+
+                    <input type="checkbox" id="battery" />
+                    <label for="battery">Lage batterij?</label>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
