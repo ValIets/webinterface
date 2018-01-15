@@ -19,6 +19,12 @@ cd valiets-webinterface
 
 # Install npm dependencies
 npm install
+
+# Pre-process things
+npm run production
+
+# Or for development
+npm run watch
 ```
 
 
