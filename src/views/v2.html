@@ -23,11 +23,7 @@
                 webApp.onmessage = function(event) {
                     data = $.parseJSON(event.data);
 
-                    console.log(data)
-
                     if (data.residents) {
-                        console.log(data.residents);
-
                         $.each(data.residents, function(i, resident) {
                             let statusIcon = `<i class="far fa-circle fa-xs" style="color: darkgreen;"></i>`;
                             let statusText = '<span style="color: darkgreen;">In orde</span>';
@@ -63,7 +59,7 @@
                                 `</tr>`
                             );
 
-                            $('#residents__table').on('click', 'input#' + resident.id, function() {
+                            $('#residents__table').on('click', `input#${resident.id}`, function() {
                                 if ($(this).val() === 'Hulp onderweg') {
                                     $(`tr#${resident.id} > td:nth-child(3)`).text('Onderweg');
                                     $(`tr#${resident.id} > td:nth-child(4) > input`).attr('value', 'Afgehandeld');
