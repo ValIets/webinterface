@@ -29,33 +29,36 @@
                         console.log(data.residents);
 
                         $.each(data.residents, function(i, resident) {
-                            status = '';
-                            action = '';
+                            let statusIcon = `<i class="far fa-circle fa-xs" style="color: darkgreen;"></i>`;
+                            let statusText = '<span style="color: darkgreen;">In orde</span>';
+                            let action = '';
 
-                            if (resident.is_fallen) {
+                            if (resident.low_battery) {
+                                statusIcon = `<i class="fa fa-circle fa-xs" style="color: orange;"></i>`;
+                                statusText = '<span style="color: orange;">Batterij laag</span>';
+                            } else if (resident.is_fallen) {
+                                statusIcon = `<i class="fa fa-circle fa-xs" style="color: red;"></i>`;
+                                statusText = '<span style="color: red;">Mogelijk gevallen</span>';
+                                action = `<button class="button small no-margin" id="${resident.id}">` +
+                                        `<i class="fa fa-user-md"></i> Verzorger onderweg?` +
+                                    `</button>`
+                                ;
+
                                 if (resident.is_coming) {
-                                    status = 'Onderweg';
+                                    statusText += '<br /><span style="color: red;">en verzorger onderweg</span>';
                                     action = `<button class="button small no-margin" id="${resident.id}">` +
                                             `<i class="fa fa-thumbs-up"></i> Is geholpen` +
                                         `</button>`
                                     ;
-                                } else {
-                                    status = 'Gevallen';
-                                    action = `<button class="button small no-margin" id="${resident.id}">` +
-                                            `<i class="fa fa-user-md"></i> Verzorger onderweg?` +
-                                        `</button>`
-                                    ;
                                 }
-                            } else {
-                                status = 'In orde';
-                                action = '';
                             }
 
                             $('#residents__rows').append(
                                 `<tr id="${resident.id}">` +
                                     `<td>${resident.firstname} ${resident.surname}</td>` +
                                     `<td>${resident.section} ${resident.address}</td>` +
-                                    `<td>${status}</td>` +
+                                    `<td>${statusIcon}</td>` +
+                                    `<td>${statusText}</td>` +
                                     `<td>${action}</td>` +
                                 `</tr>`
                             );
@@ -94,13 +97,13 @@
                             <tr>
                                 <th>Naam</th>
                                 <th>Adres</th>
-                                <th>Status</th>
+                                <th colspan="2">Status</th>
                                 <th>Actie</th>
                             </tr>
                         </thead>
                         <tbody id="residents__rows" style="background: #fbfbfb;">
                             <tr>
-                                <td colspan="4" style="text-align: center; padding: 60px 0;">
+                                <td colspan="5" style="text-align: center; padding: 60px 0;">
                                     <div>
                                         <!-- <i class="fa fa-4x fa-wheelchair fa-spin" style="color: #444;"></i> -->
                                         <!-- <i class="fa fa-3x fa-circle-o-notch fa-spin" style="color: #666;"></i> -->
