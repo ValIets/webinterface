@@ -24,6 +24,8 @@
                     data = $.parseJSON(event.data);
 
                     if (data.residents) {
+                        $('#residents__loading').hide();
+
                         $.each(data.residents, function(i, resident) {
                             let statusIcon = `<i class="far fa-circle fa-xs" style="color: darkgreen;"></i>`;
                             let statusText = '<span style="color: darkgreen;">In orde</span>';
@@ -98,7 +100,7 @@
                             </tr>
                         </thead>
                         <tbody id="residents__rows" style="background: #fbfbfb;">
-                            <tr>
+                            <tr id="residents__loading">
                                 <td colspan="5" style="text-align: center; padding: 60px 0;">
                                     <div>
                                         <!-- <i class="fa fa-4x fa-wheelchair fa-spin" style="color: #444;"></i> -->
